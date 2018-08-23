@@ -1,0 +1,25 @@
+
+
+SELECT vouchers.id, employees.id, employees.gender, tours.price AS "tours_price", transfers.price AS "transfers_price"
+FROM vouchers 
+LEFT JOIN clients ON clients.id =vouchers.clients_id 
+LEFT JOIN passports ON passports.id = clients.passports_id 
+LEFT JOIN tours ON tours.id =vouchers.tours_id 
+LEFT JOIN flights ON flights.id =vouchers.flights_id 
+LEFT JOIN employees ON employees.id =vouchers.employees_id 
+LEFT JOIN hotels ON hotels.id =vouchers.hotels_id 
+LEFT JOIN hotel_transfers ON hotel_transfers.hotels_id =hotels.id 
+LEFT JOIN transfers ON hotel_transfers.transfers_id =transfers.id 
+LEFT JOIN airports ON airports.id =flights.airport_id 
+LEFT JOIN cities ON cities.id =airports.cities_id 
+LEFT JOIN countries ON countries.id =cities.countries_id 
+WHERE employees.gender = "male" 
+AND 
+clients.age>32 
+AND 
+tours.price<(select avg (price) FROM tours)
+AND 
+transfers.price>(select avg (price) FROM transfers)
+ORDER BY vouchers.id asc;
+
+

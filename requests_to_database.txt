@@ -1,0 +1,48 @@
+UPDATE clients SET age=39 WHERE id="3";
+UPDATE clients SET surname= "slater" WHERE id="6";
+
+UPDATE hotels SET name="vindola" WHERE id="5";
+
+UPDATE employees SET surname="sudakov" WHERE id="1";
+
+SELECT ci.id, ci.name, co.name AS co_name
+FROM cities ci
+LEFT JOIN countries co ON ci.countries_id = co.id
+where co.name = "Spain";
+
+SELECT *
+FROM employees
+WHERE age>(SELECT avg(age) FROM employees);
+
+
+alter table countries add column continent varchar(45) not null;
+
+alter table countries drop column continent;
+
+SELECT *, min(free_seates) FROM flights
+group by flights.id
+having min(free_seates)>100
+order by flights.id desc
+LIMIT 9;
+
+
+SELECT vouchers.id, vouchers.flights_id, flights.free_seates 
+FROM vouchers 
+LEFT JOIN flights 
+ON vouchers.flights_id = flights.id
+GROUP BY vouchers.id
+HAVING MIN(flights.free_seates)>100;
+
+
+SELECT vouchers.id, vouchers.clients_id, clients.age, clients.gender 
+FROM vouchers 
+LEFT JOIN clients 
+ON vouchers. clients_id = clients.id 
+WHERE clients.gender = "female" 
+GROUP BY vouchers.id 
+HAVING MAX(clients.age)>30;
+
+
+
+
+

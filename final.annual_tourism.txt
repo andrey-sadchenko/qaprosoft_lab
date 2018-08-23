@@ -1,0 +1,465 @@
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
+
+CREATE SCHEMA IF NOT EXISTS `tourism` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci ;
+USE `tourism` ;
+
+-- -----------------------------------------------------
+-- Table `tourism`.`tours`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tourism`.`tours` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  `days_amount` INT(2) UNSIGNED NOT NULL,
+  `price` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `tourism`.`countries`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tourism`.`countries` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `tourism`.`cities`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tourism`.`cities` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  `countries_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_cities_countries1_idx` (`countries_id` ASC),
+  CONSTRAINT `fk_cities_countries1`
+    FOREIGN KEY (`countries_id`)
+    REFERENCES `tourism`.`countries` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `tourism`.`airports`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tourism`.`airports` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  `cities_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_airport_cities1_idx` (`cities_id` ASC),
+  CONSTRAINT `fk_airport_cities1`
+    FOREIGN KEY (`cities_id`)
+    REFERENCES `tourism`.`cities` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `tourism`.`flights`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tourism`.`flights` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `departure` VARCHAR(45) NOT NULL,
+  `arrival` VARCHAR(45) NOT NULL,
+  `free_seates` INT UNSIGNED NOT NULL,
+  `price` INT UNSIGNED NOT NULL,
+  `airport_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_flights_airport_idx` (`airport_id` ASC),
+  CONSTRAINT `fk_flights_airport`
+    FOREIGN KEY (`airport_id`)
+    REFERENCES `tourism`.`airports` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `tourism`.`hotels`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tourism`.`hotels` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  `stars` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `tourism`.`employees`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tourism`.`employees` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `surname` VARCHAR(45) NOT NULL,
+  `name` VARCHAR(45) NOT NULL,
+  `gender` VARCHAR(45) NOT NULL,
+  `age` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `tourism`.`passports`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tourism`.`passports` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `type` INT NOT NULL,
+  `number` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `serialnumber_UNIQUE` (`number` ASC))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `tourism`.`clients`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tourism`.`clients` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `surname` VARCHAR(45) NOT NULL,
+  `name` VARCHAR(45) NOT NULL,
+  `age` INT UNSIGNED NOT NULL,
+  `gender` VARCHAR(45) NOT NULL,
+  `phone` INT NOT NULL,
+  `passports_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_client_passport1_idx` (`passports_id` ASC),
+  CONSTRAINT `fk_client_passport1`
+    FOREIGN KEY (`passports_id`)
+    REFERENCES `tourism`.`passports` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `tourism`.`vouchers`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tourism`.`vouchers` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `tours_id` INT NOT NULL,
+  `flights_id` INT NOT NULL,
+  `employees_id` INT NOT NULL,
+  `clients_id` INT NOT NULL,
+  `hotels_id` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_voucher_employee1_idx` (`employees_id` ASC),
+  INDEX `fk_voucher_client1_idx` (`clients_id` ASC),
+  INDEX `fk_voucher_flights1_idx` (`flights_id` ASC),
+  INDEX `fk_voucher_hotels1_idx` (`hotels_id` ASC),
+  INDEX `fk_voucher_tour1_idx` (`tours_id` ASC),
+  CONSTRAINT `fk_voucher_employee1`
+    FOREIGN KEY (`employees_id`)
+    REFERENCES `tourism`.`employees` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_voucher_client1`
+    FOREIGN KEY (`clients_id`)
+    REFERENCES `tourism`.`clients` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_voucher_flights1`
+    FOREIGN KEY (`flights_id`)
+    REFERENCES `tourism`.`flights` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_voucher_hotels1`
+    FOREIGN KEY (`hotels_id`)
+    REFERENCES `tourism`.`hotels` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_voucher_tour1`
+    FOREIGN KEY (`tours_id`)
+    REFERENCES `tourism`.`tours` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `tourism`.`transfers`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tourism`.`transfers` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `company` VARCHAR(45) NOT NULL,
+  `price` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `company_UNIQUE` (`company` ASC))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `tourism`.`hotel_transfers`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `tourism`.`hotel_transfers` (
+  `hotels_id` INT NOT NULL,
+  `transfers_id` INT NOT NULL,
+  INDEX `fk_hotels_has_transfers_transfers1_idx` (`transfers_id` ASC),
+  INDEX `fk_hotels_has_transfers_hotels1_idx` (`hotels_id` ASC),
+  CONSTRAINT `fk_hotels_has_transfers_hotels1`
+    FOREIGN KEY (`hotels_id`)
+    REFERENCES `tourism`.`hotels` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_hotels_has_transfers_transfers1`
+    FOREIGN KEY (`transfers_id`)
+    REFERENCES `tourism`.`transfers` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+
+insert into countries (name) value ("Belarus"); 
+insert into countries (name) value ("Croatia");
+
+insert into countries (name) value ("Cyprus");
+
+insert into countries (name) value ("Greece");
+
+insert into countries (name) value ("Madagascar");
+
+insert into countries (name) value ("Russia");
+
+insert into countries (name) value ("Spain");
+
+insert into countries (name) value ("Turkey");
+
+insert into countries (name) value ("Vietnam");
+
+insert into countries (name) value ("Zimbabwe");
+
+
+
+insert into cities (name, countries_id) value ("Harare", "10");
+insert into cities (name, countries_id) value ("Hanoi", "9");
+
+insert into cities (name, countries_id) value ("Ankara", "8");
+
+insert into cities (name, countries_id) value ("Minsk", "1");
+
+insert into cities (name, countries_id) value ("Zagreb", "2");
+
+insert into cities (name, countries_id) value ("Nicosia", "3");
+
+insert into cities (name, countries_id) value ("Athens", "4");
+
+insert into cities (name, countries_id) value ("Madrid", "7");
+
+insert into cities (name, countries_id) value ("Sochi", "6");
+
+insert into cities (name, countries_id) value ("Antananarivo", "5");
+
+
+
+insert into airports (name, cities_id) value ("hrr", "1");
+
+insert into airports (name, cities_id) value ("hni", "2");
+
+insert into airports (name, cities_id) value ("akr", "3");
+
+insert into airports (name, cities_id) value ("mnk", "4");
+
+insert into airports (name, cities_id) value ("zgb", "5");
+
+insert into airports (name, cities_id) value ("ncs", "6");
+
+insert into airports (name, cities_id) value ("ahn", "7");
+
+insert into airports (name, cities_id) value ("mdi", "8");
+
+insert into airports (name, cities_id) value ("sci", "9");
+
+insert into airports (name, cities_id) value ("atn", "10");
+
+
+
+insert into flights (departure, arrival, free_seates, price, airport_id) value ("Minsk", "Harare", "187", "59", "1"); 
+insert into flights (departure, arrival, free_seates, price, airport_id) value ("Minsk", "Hanoi", "147", "65", "2");
+
+insert into flights (departure, arrival, free_seates, price, airport_id) value ("Minsk", "Ankara", "247", "147", "3");
+
+insert into flights (departure, arrival, free_seates, price, airport_id) value ("Sochi", "Minsk", "108", "35", "4");
+
+insert into flights (departure, arrival, free_seates, price, airport_id) value ("Sochi", "Zagreb", "23", "140", "5");
+
+insert into flights (departure, arrival, free_seates, price, airport_id) value ("Sochi", "Nicosia", "38", "120", "6");
+
+insert into flights (departure, arrival, free_seates, price, airport_id) value ("Minsk", "Athens", "17", "119", "7");
+
+insert into flights (departure, arrival, free_seates, price, airport_id) value ("Minsk", "Madrid", "153", "87", "8");
+
+insert into flights (departure, arrival, free_seates, price, airport_id) value ("Minsk", "Sochi", "70", "30", "9");
+
+insert into flights (departure, arrival, free_seates, price, airport_id) value ("Sochi", "Antananarivo", "142", "215", "10");
+
+
+
+insert into tours (name, days_amount, price) values ("Bulbash", "30", "109");
+
+insert into tours (name, days_amount, price) values ("Horvat", "10", "251");
+insert into tours (name, days_amount, price) values ("Kipriot", "9", "346");
+
+insert into tours (name, days_amount, price) values ("Grek", "11", "299");
+
+insert into tours (name, days_amount, price) values ("Madagascarets", "7", "401");
+
+insert into tours (name, days_amount, price) values ("Russkiy", "31", "110");
+
+insert into tours (name, days_amount, price) values ("Ispanets", "10", "384");
+
+insert into tours (name, days_amount, price) values ("Turok", "15", "293");
+
+insert into tours (name, days_amount, price) values ("Vietnamets", "8", "450");
+
+insert into tours (name, days_amount, price) values ("Zimbabwiets", "5", "1001");
+
+
+
+insert into passports (type, number) value ("11", "123456");
+
+insert into passports (type, number) value ("22", "234567");
+
+insert into passports (type, number) value ("33", "345678");
+
+insert into passports (type, number) value ("44", "456789");
+
+insert into passports (type, number) value ("55", "567890");
+
+insert into passports (type, number) value ("66", "678901");
+
+insert into passports (type, number) value ("77", "789012");
+
+insert into passports (type, number) value ("88", "890123");
+
+insert into passports (type, number) value ("99", "901234");
+
+insert into passports (type, number) value ("10", "101112");
+
+
+
+insert into clients (surname, name, age, gender, phone, passports_id) value ("noris", "chak", "85", "male", "7778999", "1");
+
+insert into clients (surname, name, age, gender, phone, passports_id) value ("olsen", "elizabeth", "36", "female", "2345678", "2");
+
+insert into clients (surname, name, age, gender, phone, passports_id) value ("mulligan", "carey", "35", "female", "3456789", "3");
+
+insert into clients (surname, name, age, gender, phone, passports_id) value ("cho", "jon", "46", "male", "4567890", "4");
+
+insert into clients (surname, name, age, gender, phone, passports_id) value ("bullock", "sandra", "31", "female", "5678901", "5");
+
+insert into clients (surname, name, age, gender, phone, passports_id) value ("slater", "christian", "67", "male", "6789012", "6");
+
+insert into clients (surname, name, age, gender, phone, passports_id) value ("howard", "terrence", "52", "male", "7890123", "7");
+
+insert into clients (surname, name, age, gender, phone, passports_id) value ("hanks", "tom", "59", "male", "8901234", "8");
+
+insert into clients (surname, name, age, gender, phone, passports_id) value ("diaz", "cameron", "44", "female", "9012345", "9");
+
+insert into clients (surname, name, age, gender, phone, passports_id) value ("chan", "jackie", "63", "male", "3331444", "10");
+
+
+
+
+insert into transfers (company, price) value ("bmw", "100");
+
+insert into transfers (company, price) value ("mayboh", "3000");
+
+insert into transfers (company, price) value ("lada", "15");
+
+insert into transfers (company, price) value ("vw", "80");
+
+insert into transfers (company, price) value ("ferrari", "1500");
+
+
+
+
+insert into hotels (name, stars) value ("plaza", "5");
+
+insert into hotels (name, stars) value ("mila", "3");
+
+insert into hotels (name, stars) value ("vira", "4");
+
+insert into hotels (name, stars) value ("sotmar", "5");
+
+insert into hotels (name, stars) value ("vindea", "4");
+
+insert into hotels (name, stars) value ("corera", "5");
+
+insert into hotels (name, stars) value ("prima", "4");
+insert into hotels (name, stars) value ("donna", "2");
+
+insert into hotels (name, stars) value ("vympel", "3");
+
+insert into hotels (name, stars) value ("sietlow", "5");
+
+
+
+
+
+insert into hotel_transfers (hotels_id, transfers_id) value ("1", "3"); 
+insert into hotel_transfers (hotels_id, transfers_id) value ("1", "5");
+
+insert into hotel_transfers (hotels_id, transfers_id) value ("2", "1");
+
+insert into hotel_transfers (hotels_id, transfers_id) value ("3", "3");
+
+insert into hotel_transfers (hotels_id, transfers_id) value ("3", "4");
+
+insert into hotel_transfers (hotels_id, transfers_id) value ("4", "2");
+
+insert into hotel_transfers (hotels_id, transfers_id) value ("5", "5");
+
+insert into hotel_transfers (hotels_id, transfers_id) value ("6", "1");
+
+insert into hotel_transfers (hotels_id, transfers_id) value ("6", "2");
+
+insert into hotel_transfers (hotels_id, transfers_id) value ("7", "3");
+
+insert into hotel_transfers (hotels_id, transfers_id) value ("7", "5");
+
+insert into hotel_transfers (hotels_id, transfers_id) value ("8", "2");
+
+insert into hotel_transfers (hotels_id, transfers_id) value ("9", "4");
+
+insert into hotel_transfers (hotels_id, transfers_id) value ("9", "5");
+
+insert into hotel_transfers (hotels_id, transfers_id) value ("10", "2");
+
+insert into hotel_transfers (hotels_id, transfers_id) value ("10", "3");
+
+insert into hotel_transfers (hotels_id, transfers_id) value ("10", "5");
+
+
+
+
+insert into employees (surname, name, gender, age) value ("sudak", "anton", "male", "23");
+
+insert into employees (surname, name, gender, age) value ("chernov", "ilya", "male", "46");
+
+insert into employees (surname, name, gender, age) value ("lubimova", "liza", "female", "19");
+
+insert into employees (surname, name, gender, age) value ("rogova", "marina", "female", "35");
+
+insert into employees (surname, name, gender, age) value ("vagov", "yan", "male", "51");
+
+
+
+
+insert into vouchers (tours_id, flights_id, employees_id, clients_id, hotels_id) value ("1", "4", "3", "1", "10");
+insert into vouchers (tours_id, flights_id, employees_id, clients_id, hotels_id) value ("2", "5", "1", "2", "7");
+insert into vouchers (tours_id, flights_id, employees_id, clients_id, hotels_id) value ("3", "10", "2", "5", "3");
+insert into vouchers (tours_id, flights_id, employees_id, clients_id, hotels_id) value ("4", "8", "3", "7", "6");
+insert into vouchers (tours_id, flights_id, employees_id, clients_id, hotels_id) value ("5", "1", "4", "10", "2");
+insert into vouchers (tours_id, flights_id, employees_id, clients_id, hotels_id) value ("6", "3", "5", "8", "1");
+
